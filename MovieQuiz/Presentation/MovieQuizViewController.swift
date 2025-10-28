@@ -63,8 +63,8 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        let first = convert(model: questions[0])
-        show(quiz: first)
+        let firstQuestion = convert(model: questions[0])
+        show(quiz: firstQuestion)
         
     }
     
@@ -82,9 +82,82 @@ final class MovieQuizViewController: UIViewController {
         counterLabel.text = step.questionNumber
     }
     
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+    private func showAnswerResult(isCorrect: Bool) {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor =
+            isCorrect ?
+            UIColor(named: "YP Green")?.cgColor
+            : UIColor(named: "YP Red")?.cgColor
+        imageView.layer.cornerRadius = 20
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.showNextQuestionOrResult()
+        }
+        
+        if isCorrect {
+            correctAnswers += 1
+        }
     }
+    
+    private func showNextQuestionOrResult() {
+        if currentQuestionIndex == questions.count - 1 {
+            let text = "Ваш результат \(correctAnswers)/\(questions.count)"
+            let viewModel = QuizResultsViewModel(
+                title: "Этот раунд окончен!",
+                text: text,
+                buttonText: "Сыграть ещё раз"
+            )
+            
+            show(quiz: viewModel)
+        } else {
+            currentQuestionIndex += 1
+            
+            let newQuestion = questions[currentQuestionIndex]
+            let viewModel = convert(model: newQuestion)
+            
+            resetImageBorder()
+            show(quiz: viewModel)
+        }
+    }
+    
+    private func show(quiz result: QuizResultsViewModel) {
+        let alert = UIAlertController(
+            title: result.title,
+            message: result.text,
+            preferredStyle: .alert
+        )
+            
+        let action = UIAlertAction(
+            title: result.buttonText,
+            style: .default) { [self] _ in
+                currentQuestionIndex = 0
+                correctAnswers = 0
+                let currentQuestion = questions[currentQuestionIndex]
+                let viewModel = convert(model: currentQuestion)
+                resetImageBorder()
+                show(quiz: viewModel)
+            }
+        
+        alert.addAction(action)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func resetImageBorder() {
+        imageView.layer.borderWidth = 0
+        imageView.layer.borderColor = nil
+    }
+    
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = true
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    
     @IBAction private func noButtonClicked(_ sender: UIButton) {
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = false
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
 
