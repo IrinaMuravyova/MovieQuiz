@@ -53,6 +53,8 @@ final class MovieQuizViewController: UIViewController {
             correctAnswer: false
         )
     ]
+    private var currentQuestionIndex = 0
+    private var correctAnswers = 0
     
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
@@ -61,6 +63,23 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        let first = convert(model: questions[0])
+        show(quiz: first)
+        
+    }
+    
+    private func convert(model: QuizQuestionModel) -> QuizStepViewModel {
+        QuizStepViewModel(
+            image: model.image,
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)"
+        )
+    }
+    
+    private func show(quiz step: QuizStepViewModel) {
+        imageView.image = UIImage(named: step.image)
+        textLabel.text = step.question
+        counterLabel.text = step.questionNumber
     }
     
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
