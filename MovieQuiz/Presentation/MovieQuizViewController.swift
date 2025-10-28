@@ -2,52 +2,52 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     private let questions = [
-        QuizQuestion(
+        QuizQuestionModel(
             image: "The Godfather",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: true
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "The Dark Knight",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: true
         ),
-        QuizQuestion(
-            image: "Kill Bill", 
+        QuizQuestionModel(
+            image: "Kill Bill",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: true
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "The Avengers",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: true
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "Deadpool",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: true
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "The Green Knight",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: true
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "Old",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: false
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "The Ice Age Adventures of Buck Wild",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: false
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "Tesla",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: false
         ),
-        QuizQuestion(
+        QuizQuestionModel(
             image: "Vivarium",
             text: "Рейтинг этого фильма больше чем 6?",
             correctAnswer: false
@@ -67,12 +67,6 @@ final class MovieQuizViewController: UIViewController {
     }
     @IBAction private func noButtonClicked(_ sender: UIButton) {
     }
-}
-
-struct QuizQuestion {
-    let image: String
-    let text: String
-    let correctAnswer: Bool
 }
 
 /*
