@@ -54,9 +54,18 @@ final class MovieQuizViewController: UIViewController {
         )
     ]
     
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var counterLabel: UILabel!
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+    
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+    }
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
     }
 }
 
