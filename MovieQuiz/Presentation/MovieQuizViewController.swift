@@ -93,6 +93,7 @@ final class MovieQuizViewController: UIViewController {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showNextQuestionOrResult()
+            self.resetImageBorder()
         }
         
         if isCorrect {
@@ -116,7 +117,6 @@ final class MovieQuizViewController: UIViewController {
             let newQuestion = questions[currentQuestionIndex]
             let viewModel = convert(model: newQuestion)
             
-            resetImageBorder()
             show(quiz: viewModel)
         }
     }
@@ -135,7 +135,7 @@ final class MovieQuizViewController: UIViewController {
                 correctAnswers = 0
                 let currentQuestion = questions[currentQuestionIndex]
                 let viewModel = convert(model: currentQuestion)
-                resetImageBorder()
+                
                 show(quiz: viewModel)
             }
         
