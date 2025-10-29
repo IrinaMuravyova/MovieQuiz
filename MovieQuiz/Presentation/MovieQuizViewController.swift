@@ -118,14 +118,11 @@ final class MovieQuizViewController: UIViewController {
                 text: text,
                 buttonText: resultButtonText
             )
-            
             show(quiz: viewModel)
         } else {
             currentQuestionIndex += 1
-            
             let newQuestion = questions[currentQuestionIndex]
             let viewModel = convert(model: newQuestion)
-            
             show(quiz: viewModel)
         }
     }
