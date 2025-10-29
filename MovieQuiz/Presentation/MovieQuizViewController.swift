@@ -56,12 +56,14 @@ final class MovieQuizViewController: UIViewController {
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     
+    // MARK: - Constants
     private let borderWidth = CGFloat(8)
     private let cornerRadius = CGFloat(20)
     private let resultTitle = "Этот раунд окончен!"
     private let resultText = "Ваш результат "
     private let resultButtonText = "Сыграть ещё раз"
     
+    // MARK: - IBOutlets
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
@@ -75,6 +77,7 @@ final class MovieQuizViewController: UIViewController {
         show(quiz: firstQuestion)
     }
     
+    // MARK: - Private functions
     private func convert(model: QuizQuestionModel) -> QuizStepViewModel {
         QuizStepViewModel(
             image: model.image,
@@ -164,6 +167,7 @@ final class MovieQuizViewController: UIViewController {
         }
     }
     
+    // MARK: - IBActions
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
