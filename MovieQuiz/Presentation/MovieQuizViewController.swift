@@ -65,6 +65,8 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet weak var noButton: UIButton!
+    @IBOutlet weak var yesButton: UIButton!
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -85,6 +87,7 @@ final class MovieQuizViewController: UIViewController {
         imageView.image = UIImage(named: step.image)
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
+        buttonsIsEnable(true)
     }
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -151,16 +154,29 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.borderColor = nil
     }
     
+    private func buttonsIsEnable(_ onToggle: Bool) {
+        if onToggle {
+            noButton.isEnabled = true
+            yesButton.isEnabled = true
+        } else {
+            noButton.isEnabled = false
+            yesButton.isEnabled = false
+        }
+    }
+    
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        yesButton.isHighlighted = true
+        buttonsIsEnable(false)
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = false
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        buttonsIsEnable(false)
     }
 }
 
