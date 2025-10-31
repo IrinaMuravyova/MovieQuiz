@@ -100,7 +100,8 @@ final class MovieQuizViewController: UIViewController {
             UIColor(named: "YP Green")?.cgColor : UIColor(named: "YP Red")?.cgColor
         imageView.layer.cornerRadius = cornerRadius
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
             self.showNextQuestionOrResult()
             self.resetImageBorder()
         }
