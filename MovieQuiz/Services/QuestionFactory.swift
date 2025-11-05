@@ -61,6 +61,8 @@ class QuestionFactory {
         )
     ]
     
+    private var remainingQuestionIndices: [Int] = []
+    
     weak var delegate: QuestionFactoryDelegate?
     
     func setDelegate(_ delegate: QuestionFactoryDelegate) {
@@ -70,12 +72,19 @@ class QuestionFactory {
 
 extension QuestionFactory: QuestionFactoryProtocol {
     func requestNextQuestion() {
-        guard let index = (0 ... questions.count - 1).randomElement() else {
+        if remainingQuestionIndices.isEmpty {
+            remainingQuestionIndices = Array(0..<questions.count)
+        }
+        
+        guard let randomIndex = remainingQuestionIndices.randomElement(),
+            let elementIndex = remainingQuestionIndices.firstIndex(of: randomIndex) else {
             delegate?.didReceiveNextQuestion(question: nil)
             return
         }
         
-        let question = questions[safe: index]
+        remainingQuestionIndices.remove(at: elementIndex)
+        
+        let question = questions[safe: randomIndex]
         delegate?.didReceiveNextQuestion(question: question)
     }
 }
