@@ -15,6 +15,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let resultText = "Ваш результат "
     private let resultButtonText = "Сыграть ещё раз"
     
+    private let alertPresenter = AlertPresenter()
+    
     // MARK: - IBOutlets
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var imageView: UIImageView!
@@ -94,23 +96,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
+        let model = AlertModel(
             title: result.title,
             message: result.text,
-            preferredStyle: .alert
-        )
-            
-        let action = UIAlertAction(
-            title: result.buttonText,
-            style: .default) { [weak self] _ in
-                guard let self else { return }
-                currentQuestionIndex = 0
-                correctAnswers = 0
-                questionFactory?.requestNextQuestion()
+            buttonText: result.buttonText) { [weak self] in
+                guard let self = self else { return }
+                self.restartGame()
             }
-        
-        alert.addAction(action)
-        self.present(alert, animated: true, completion: nil)
+        alertPresenter.show(in: self, model: model)
     }
     
     private func resetImageBorder() {
@@ -126,6 +119,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             noButton.isEnabled = false
             yesButton.isEnabled = false
         }
+    }
+    
+    private func restartGame() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
     }
     
     // MARK: - IBActions
