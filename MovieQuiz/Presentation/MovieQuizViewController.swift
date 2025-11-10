@@ -12,10 +12,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let borderWidth = CGFloat(8)
     private let cornerRadius = CGFloat(20)
     private let resultTitle = "Этот раунд окончен!"
-    private let resultText = "Ваш результат "
+    private let resultText = "Ваш результат: "
     private let resultButtonText = "Сыграть ещё раз"
     
     private let alertPresenter = AlertPresenter()
+    private let statisticService: StatisticServiceProtocol = StatisticService()
     
     // MARK: - IBOutlets
     @IBOutlet private weak var textLabel: UILabel!
@@ -96,9 +97,19 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func show(quiz result: QuizResultsViewModel) {
+        statisticService.store(game: GameResult(correct: correctAnswers, total: 10, date: Date()))
+        let gamesCount = statisticService.gamesCount
+        
+        let currentResultText = result.text + "\n"
+        let gamesCountText = "Количество сыгранных квизов: \(gamesCount)\n"
+        let recordText = "Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) \(statisticService.bestGame.date.dateTimeString)\n"
+        let accuracyText = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+        
+        let message = currentResultText + gamesCountText + recordText + accuracyText
+        
         let model = AlertModel(
             title: result.title,
-            message: result.text,
+            message: message,
             buttonText: result.buttonText) { [weak self] in
                 guard let self = self else { return }
                 self.restartGame()
