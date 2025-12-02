@@ -7,7 +7,7 @@
 
 import Foundation
 
-class QuestionFactory {
+final class QuestionFactory {
     private let questions = [
         QuizQuestionModel(
             image: "The Godfather",
