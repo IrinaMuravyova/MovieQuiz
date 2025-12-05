@@ -24,15 +24,20 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var counterLabel: UILabel!
     @IBOutlet weak var noButton: UIButton!
     @IBOutlet weak var yesButton: UIButton!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let questionFactory = QuestionFactory()
-        questionFactory.setDelegate(self)
+        
+        let questionFactory = QuestionFactory(
+            moviesLoader: MoviesLoader(),
+            delegate: self
+        )
         self.questionFactory = questionFactory
-        self.questionFactory?.requestNextQuestion()
+
+        showLoadingIndicator()
+        questionFactory.loadData()
     }
     
     // MARK: - QuestionFactoryDelegate
@@ -47,17 +52,26 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    
     // MARK: - Private functions
     private func convert(model: QuizQuestionModel) -> QuizStepViewModel {
         QuizStepViewModel(
-            image: model.image,
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
     }
     
     private func show(quiz step: QuizStepViewModel) {
-        imageView.image = UIImage(named: step.image)
+        imageView.image = step.image//UIImage(named: step.image)
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
         buttonsIsEnable(true)
@@ -136,6 +150,33 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         currentQuestionIndex = 0
         correctAnswers = 0
         questionFactory?.requestNextQuestion()
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать ещё раз") { [weak self] in
+                guard let self = self else { return }
+                
+                currentQuestionIndex = 0
+                correctAnswers = 0
+                
+                questionFactory?.requestNextQuestion()
+            }
+        alertPresenter.show(in: self, model: model)
     }
     
     // MARK: - IBActions
