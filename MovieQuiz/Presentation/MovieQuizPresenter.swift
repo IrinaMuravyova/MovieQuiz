@@ -81,7 +81,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         didAnswer(isYes: false)
     }
     
-    func showNextQuestionOrResult() {
+    func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
             let text = resultText + "\(correctAnswers)/\(self.questionsAmount)"
             let viewModel = QuizResultsViewModel(
@@ -120,11 +120,25 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         return resultMessage
     }
     
+    func proceedWithAnswer(isCorrect: Bool) {
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            proceedToNextQuestionOrResults()
+            viewController?.resetImageBorder()
+        }
+
+        if isCorrect {
+            correctAnswers += 1
+        }
+    }
+    
     private func didAnswer(isYes: Bool) {
         guard let currentQuestion = currentQuestion else { return }
         
         let givenAnswer = isYes
         
-        viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }

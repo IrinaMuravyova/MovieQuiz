@@ -31,23 +31,11 @@ final class MovieQuizViewController: UIViewController {
         buttonsIsEnable(true)
     }
     
-    func showAnswerResult(isCorrect: Bool) {
+    func highlightImageBorder(isCorrectAnswer: Bool) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = borderWidth
-        imageView.layer.borderColor = isCorrect ?
-            UIColor(named: "YP Green")?.cgColor : UIColor(named: "YP Red")?.cgColor
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         imageView.layer.cornerRadius = cornerRadius
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-
-            self.presenter.showNextQuestionOrResult()
-            self.resetImageBorder()
-        }
-        
-        if isCorrect {
-            presenter.correctAnswers += 1
-        }
     }
     
     func show(quiz result: QuizResultsViewModel) {
@@ -88,12 +76,12 @@ final class MovieQuizViewController: UIViewController {
         activityIndicator.startAnimating()
     }
     
-    // MARK: - Private functions
-    private func resetImageBorder() {
+    func resetImageBorder() {
         imageView.layer.borderWidth = 0
         imageView.layer.borderColor = nil
     }
     
+    // MARK: - Private functions
     private func buttonsIsEnable(_ onToggle: Bool) {
         if onToggle {
             noButton.isEnabled = true
