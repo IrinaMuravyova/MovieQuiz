@@ -2,7 +2,6 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestionModel?
     private var correctAnswers = 0
     
     // MARK: - Constants
@@ -33,6 +32,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             delegate: self
         )
         self.questionFactory = questionFactory
+        presenter.viewController = self
 
         showLoadingIndicator()
         questionFactory.loadData()
@@ -42,7 +42,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     func didReceiveNextQuestion(question: QuizQuestionModel?) {
         guard let question = question else { return }
         
-        currentQuestion = question
+        presenter.currentQuestion = question
         let viewModel = presenter.convert(model: question)
         
         DispatchQueue.main.async { [weak self] in
@@ -67,7 +67,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         buttonsIsEnable(true)
     }
     
-    private func showAnswerResult(isCorrect: Bool) {
+    func showAnswerResult(isCorrect: Bool) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = borderWidth
         imageView.layer.borderColor = isCorrect ?
@@ -171,17 +171,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - IBActions
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else { return }
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-        yesButton.isHighlighted = true
-        buttonsIsEnable(false)
+        presenter.yesButtonClicked()
     }
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        guard let currentQuestion = currentQuestion else { return }
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        presenter.noButtonClicked()
         buttonsIsEnable(false)
     }
 }
