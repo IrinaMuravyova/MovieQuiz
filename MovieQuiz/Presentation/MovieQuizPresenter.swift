@@ -13,6 +13,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private let resultTitle = "Этот раунд окончен!"
     private let resultText = "Ваш результат: "
     private let resultButtonText = "Сыграть ещё раз"
+    private let statisticService: StatisticServiceProtocol!
     
     private var questionFactory: QuestionFactoryProtocol?
     private weak var viewController: MovieQuizViewController?
@@ -24,10 +25,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     init(viewController: MovieQuizViewController) {
         self.viewController = viewController
         
+        statisticService = StatisticService()
+        
         questionFactory = QuestionFactory(
             moviesLoader: MoviesLoader(),
             delegate: self
         )
+        
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
     }
@@ -96,6 +100,24 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         currentQuestionIndex = 0
         correctAnswers = 0
         questionFactory?.requestNextQuestion()
+    }
+    
+    func makeResultsMessage() -> String {
+        statisticService.store(game: GameResult(correct: correctAnswers, total: questionsAmount, date: Date()))
+        
+        let bestGame = statisticService.bestGame
+        
+        let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+        let currentGameResultLine = "Ваш результат: \(correctAnswers)\\\(questionsAmount)"
+        let bestGameInfoLine = "Рекорд: \(bestGame.correct)\\\(bestGame.total)"
+        + " (\(bestGame.date.dateTimeString))"
+        let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+        
+        let resultMessage = [
+            currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine
+        ].joined(separator: "\n")
+        
+        return resultMessage
     }
     
     private func didAnswer(isYes: Bool) {

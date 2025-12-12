@@ -6,7 +6,6 @@ final class MovieQuizViewController: UIViewController {
     private let cornerRadius = CGFloat(20)
     
     private let alertPresenter = AlertPresenter()
-    private let statisticService: StatisticServiceProtocol = StatisticService()
     private var presenter: MovieQuizPresenter!
     
     // MARK: - IBOutlets
@@ -52,15 +51,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     func show(quiz result: QuizResultsViewModel) {
-        statisticService.store(game: GameResult(correct: presenter.correctAnswers, total: presenter.questionsAmount, date: Date()))
-        let gamesCount = statisticService.gamesCount
-        
-        let currentResultText = result.text + "\n"
-        let gamesCountText = "Количество сыгранных квизов: \(gamesCount)\n"
-        let recordText = "Рекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))\n"
-        let accuracyText = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
-        
-        let message = currentResultText + gamesCountText + recordText + accuracyText
+        let message = presenter.makeResultsMessage()
         
         let model = AlertModel(
             title: result.title,
@@ -69,6 +60,7 @@ final class MovieQuizViewController: UIViewController {
                 guard let self = self else { return }
                 self.presenter.restartGame()
             }
+        
         alertPresenter.show(in: self, model: model)
     }
     
