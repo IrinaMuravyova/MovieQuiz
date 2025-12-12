@@ -7,4 +7,5 @@
 
 protocol QuestionFactoryProtocol: AnyObject {
     func requestNextQuestion()
+    func loadData()
 }

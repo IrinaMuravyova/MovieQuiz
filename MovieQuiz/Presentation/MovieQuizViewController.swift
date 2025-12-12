@@ -1,15 +1,13 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
-    private var questionFactory: QuestionFactoryProtocol?
-    
+final class MovieQuizViewController: UIViewController {
     // MARK: - Constants
     private let borderWidth = CGFloat(8)
     private let cornerRadius = CGFloat(20)
     
     private let alertPresenter = AlertPresenter()
     private let statisticService: StatisticServiceProtocol = StatisticService()
-    private let presenter = MovieQuizPresenter()
+    private var presenter: MovieQuizPresenter!
     
     // MARK: - IBOutlets
     @IBOutlet private weak var textLabel: UILabel!
@@ -23,29 +21,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let questionFactory = QuestionFactory(
-            moviesLoader: MoviesLoader(),
-            delegate: self
-        )
-        self.questionFactory = questionFactory
-        presenter.viewController = self
-
+        presenter = MovieQuizPresenter(viewController: self)
         showLoadingIndicator()
-        questionFactory.loadData()
-    }
-    
-    // MARK: - QuestionFactoryDelegate
-    func didReceiveNextQuestion(question: QuizQuestionModel?) {
-        presenter.didReceiveNextQuestion(question: question)
-    }
-    
-    func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
-        questionFactory?.requestNextQuestion()
-    }
-    
-    func didFailToLoadData(with error: any Error) {
-        showNetworkError(message: error.localizedDescription)
     }
     
     func show(quiz step: QuizStepViewModel) {
@@ -64,8 +41,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-//            self.presenter.correctAnswers = self.correctAnswers
-            self.presenter.questionFactory = self.questionFactory
+
             self.presenter.showNextQuestionOrResult()
             self.resetImageBorder()
         }
@@ -96,6 +72,30 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(in: self, model: model)
     }
     
+    func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+    }
+    
+    func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(
+            title: "Ошибка",
+            message: message,
+            buttonText: "Попробовать ещё раз") { [weak self] in
+                guard let self = self else { return }
+                self.presenter.restartGame()
+            }
+        alertPresenter.show(in: self, model: model)
+    }
+    
+    
+    func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
     // MARK: - Private functions
     private func resetImageBorder() {
         imageView.layer.borderWidth = 0
@@ -110,29 +110,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             noButton.isEnabled = false
             yesButton.isEnabled = false
         }
-    }
-    
-    private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-    }
-    
-    private func hideLoadingIndicator() {
-        activityIndicator.stopAnimating()
-        activityIndicator.isHidden = true
-    }
-    
-    private func showNetworkError(message: String) {
-        hideLoadingIndicator()
-        
-        let model = AlertModel(
-            title: "Ошибка",
-            message: message,
-            buttonText: "Попробовать ещё раз") { [weak self] in
-                guard let self = self else { return }
-                self.presenter.restartGame()
-            }
-        alertPresenter.show(in: self, model: model)
     }
     
     // MARK: - IBActions
