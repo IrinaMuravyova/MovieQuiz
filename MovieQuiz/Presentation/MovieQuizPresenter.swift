@@ -77,6 +77,12 @@ final class MovieQuizPresenter {
         }
     }
     
+    func restartGame() {
+        resetQuestionIndex()
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
+    }
+    
     private func didAnswer(isYes: Bool) {
         guard let currentQuestion = currentQuestion else { return }
         
