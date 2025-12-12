@@ -1,11 +1,8 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
-    private let questionsAmount = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestionModel?
-    
-    private var currentQuestionIndex = 0
     private var correctAnswers = 0
     
     // MARK: - Constants
@@ -17,6 +14,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private let alertPresenter = AlertPresenter()
     private let statisticService: StatisticServiceProtocol = StatisticService()
+    private let presenter = MovieQuizPresenter()
     
     // MARK: - IBOutlets
     @IBOutlet private weak var textLabel: UILabel!
@@ -45,7 +43,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         guard let question = question else { return }
         
         currentQuestion = question
-        let viewModel = convert(model: question)
+        let viewModel = presenter.convert(model: question)
         
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
@@ -62,16 +60,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     // MARK: - Private functions
-    private func convert(model: QuizQuestionModel) -> QuizStepViewModel {
-        QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-        )
-    }
-    
     private func show(quiz step: QuizStepViewModel) {
-        imageView.image = step.image//UIImage(named: step.image)
+        imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
         buttonsIsEnable(true)
@@ -96,8 +86,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNextQuestionOrResult() {
-        if currentQuestionIndex == questionsAmount - 1 {
-            let text = resultText + "\(correctAnswers)/\(questionsAmount)"
+        if presenter.isLastQuestion() {
+            let text = resultText + "\(correctAnswers)/\(presenter.questionsAmount)"
             let viewModel = QuizResultsViewModel(
                 title: resultTitle,
                 text: text,
@@ -105,13 +95,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             )
             show(quiz: viewModel)
         } else {
-            currentQuestionIndex += 1
+            presenter.switchToNextQuestion()
             questionFactory?.requestNextQuestion()
         }
     }
     
     private func show(quiz result: QuizResultsViewModel) {
-        statisticService.store(game: GameResult(correct: correctAnswers, total: 10, date: Date()))
+        statisticService.store(game: GameResult(correct: correctAnswers, total: presenter.questionsAmount, date: Date()))
         let gamesCount = statisticService.gamesCount
         
         let currentResultText = result.text + "\n"
@@ -147,7 +137,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func restartGame() {
-        currentQuestionIndex = 0
+        presenter.resetQuestionIndex()
         correctAnswers = 0
         questionFactory?.requestNextQuestion()
     }
@@ -171,7 +161,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             buttonText: "Попробовать ещё раз") { [weak self] in
                 guard let self = self else { return }
                 
-                currentQuestionIndex = 0
+                presenter.resetQuestionIndex()
                 correctAnswers = 0
                 
                 questionFactory?.requestNextQuestion()
