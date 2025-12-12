@@ -7,9 +7,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Constants
     private let borderWidth = CGFloat(8)
     private let cornerRadius = CGFloat(20)
-    private let resultTitle = "Этот раунд окончен!"
-    private let resultText = "Ваш результат: "
-    private let resultButtonText = "Сыграть ещё раз"
     
     private let alertPresenter = AlertPresenter()
     private let statisticService: StatisticServiceProtocol = StatisticService()
@@ -68,7 +65,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
-            self.showNextQuestionOrResult()
+            self.presenter.correctAnswers = self.correctAnswers
+            self.presenter.questionFactory = self.questionFactory
+            self.presenter.showNextQuestionOrResult()
             self.resetImageBorder()
         }
         
@@ -77,23 +76,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
     }
     
-    // MARK: - Private functions
-    private func showNextQuestionOrResult() {
-        if presenter.isLastQuestion() {
-            let text = resultText + "\(correctAnswers)/\(presenter.questionsAmount)"
-            let viewModel = QuizResultsViewModel(
-                title: resultTitle,
-                text: text,
-                buttonText: resultButtonText
-            )
-            show(quiz: viewModel)
-        } else {
-            presenter.switchToNextQuestion()
-            questionFactory?.requestNextQuestion()
-        }
-    }
-    
-    private func show(quiz result: QuizResultsViewModel) {
+    func show(quiz result: QuizResultsViewModel) {
         statisticService.store(game: GameResult(correct: correctAnswers, total: presenter.questionsAmount, date: Date()))
         let gamesCount = statisticService.gamesCount
         
@@ -114,6 +97,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(in: self, model: model)
     }
     
+    // MARK: - Private functions
     private func resetImageBorder() {
         imageView.layer.borderWidth = 0
         imageView.layer.borderColor = nil
@@ -132,7 +116,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func restartGame() {
         presenter.resetQuestionIndex()
         correctAnswers = 0
-        questionFactory?.requestNextQuestion()
+        presenter.questionFactory?.requestNextQuestion()
     }
     
     private func showLoadingIndicator() {
@@ -157,7 +141,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 presenter.resetQuestionIndex()
                 correctAnswers = 0
                 
-                questionFactory?.requestNextQuestion()
+                presenter.questionFactory?.requestNextQuestion()
             }
         alertPresenter.show(in: self, model: model)
     }

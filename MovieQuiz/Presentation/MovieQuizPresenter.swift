@@ -9,10 +9,18 @@ import UIKit
 
 final class MovieQuizPresenter {
     let questionsAmount: Int = 10
-    var currentQuestion: QuizQuestionModel?
-    private var currentQuestionIndex: Int = 0
+    
+    private let resultTitle = "Этот раунд окончен!"
+    private let resultText = "Ваш результат: "
+    private let resultButtonText = "Сыграть ещё раз"
     
     weak var viewController: MovieQuizViewController?
+    
+    var currentQuestion: QuizQuestionModel?
+    var questionFactory: QuestionFactoryProtocol?
+    var correctAnswers = 0
+    
+    private var currentQuestionIndex: Int = 0
     
     func convert(model: QuizQuestionModel) -> QuizStepViewModel {
         QuizStepViewModel(
@@ -51,6 +59,21 @@ final class MovieQuizPresenter {
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.show(quiz: viewModel)
+        }
+    }
+    
+    func showNextQuestionOrResult() {
+        if self.isLastQuestion() {
+            let text = resultText + "\(correctAnswers)/\(self.questionsAmount)"
+            let viewModel = QuizResultsViewModel(
+                title: resultTitle,
+                text: text,
+                buttonText: resultButtonText
+            )
+            viewController?.show(quiz: viewModel)
+        } else {
+            self.switchToNextQuestion()
+            questionFactory?.requestNextQuestion()
         }
     }
     
