@@ -27,7 +27,8 @@ final class MovieQuizUITests: XCTestCase {
     }
     
     func testYesButton() {
-        sleep(3)
+        sleep(10)
+        
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
         
@@ -40,11 +41,14 @@ final class MovieQuizUITests: XCTestCase {
         XCTAssertNotEqual(firstPosterData, secondPosterData)
         
         let indexLabel = app.staticTexts["Index"]
+        
+        sleep(10)
         XCTAssertEqual(indexLabel.label, "2/10")
     }
     
     func testNoButton() {
-        sleep(3)
+        sleep(10)
+        
         let firstPoster = app.images["Poster"]
         let firstPosterData = firstPoster.screenshot().pngRepresentation
         
@@ -57,13 +61,19 @@ final class MovieQuizUITests: XCTestCase {
         XCTAssertNotEqual(firstPosterData, secondPosterData)
         
         let indexLabel = app.staticTexts["Index"]
+        
+        sleep(10)
         XCTAssertEqual(indexLabel.label, "2/10")
     }
     
     func testGameFinish() {
-        (1...10).forEach {_ in
+        sleep(10)
+        
+        (1 ... 10).forEach {_ in
+            let image = app.images["Poster"]
+            XCTAssertTrue(image.waitForExistence(timeout: 6))
+            
             app.buttons["Yes"].tap()
-            sleep(3)
         }
         
         let alert = app.alerts["Game Result"]
@@ -75,20 +85,26 @@ final class MovieQuizUITests: XCTestCase {
     }
     
     func testAlertDissmis() {
-        sleep(3)
-        for _ in 1 ... 10 {
+        sleep(10)
+ 
+        for _ in 0 ..< 10 {
+            let image = app.images["Poster"]
+            XCTAssertTrue(image.waitForExistence(timeout: 6))
             app.buttons["Yes"].tap()
-            sleep(3)
         }
+
+        let alert = app.alerts["Game Result"]
         
-        let alert = app.alerts["GameResult"]
-        alert.buttons.firstMatch.tap()
-        
-        sleep(3)
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+
+        let restartButton = alert.buttons.matching(identifier: "RestartButton").firstMatch
+        XCTAssertTrue(restartButton.waitForExistence(timeout: 5))
+        restartButton.tap()
         
         let indexLabel = app.staticTexts["Index"]
         
         XCTAssertFalse(alert.exists)
+        XCTAssertTrue(indexLabel.waitForExistence(timeout: 2))
         XCTAssertEqual(indexLabel.label, "1/10")
     }
     
