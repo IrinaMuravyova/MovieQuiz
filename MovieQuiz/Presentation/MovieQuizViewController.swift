@@ -78,7 +78,8 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
             message: message,
             buttonText: "Попробовать ещё раз") { [weak self] in
                 guard let self = self else { return }
-                self.presenter.restartGame()
+                presenter.reloadData()
+                showLoadingIndicator()
             }
         alertPresenter.show(in: self, model: model)
     }

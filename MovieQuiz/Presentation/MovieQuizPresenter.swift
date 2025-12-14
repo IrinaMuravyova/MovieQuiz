@@ -81,6 +81,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         didAnswer(isYes: false)
     }
     
+    func reloadData() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.loadData()
+    }
+    
     private func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
             let text = resultText + "\(correctAnswers)/\(self.questionsAmount)"
