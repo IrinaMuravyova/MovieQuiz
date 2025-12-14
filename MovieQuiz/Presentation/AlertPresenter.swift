@@ -20,7 +20,10 @@ final class AlertPresenter: AlertPresenterProtocol {
                 model.completion()
             }
         
+        action.accessibilityIdentifier = "RestartButton"
         alert.addAction(action)
+        alert.view.accessibilityIdentifier = "Game Result"
+        
         vc.present(alert, animated: true, completion: nil)
     }
 }
